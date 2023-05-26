@@ -74,7 +74,7 @@ RUN mkdir /opt/metasoft && cd /opt/metasoft && \
 
 # Python
 RUN pip3 install --upgrade pip setuptools
-RUN pip3 install numpy tables pandas scipy matplotlib h5py pysam statsmodels scikits.bootstrap qtl
+RUN pip3 install numpy tables pandas scipy matplotlib h5py pysam statsmodels scikits.bootstrap qtl cmapPy
 # numpy dependencies:
 RUN pip3 install pyBigWig
 
