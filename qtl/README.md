@@ -4,12 +4,24 @@
 This repository contains all components of the eQTL discovery pipeline used by the GTEx Consortium, including data normalization, QTL mapping, and annotation steps. This document describes the pipeline used for the V7 and V8 data releases; for settings specific to the V6p analyses presented in [[GTEx Consortium, 2017](https://www.nature.com/articles/nature24277)], please see the last section.
 
 ## Docker image
-The GTEx eQTL pipeline components are provided in a Docker image, available at https://hub.docker.com/r/broadinstitute/gtex_eqtl/
+The GTEx eQTL pipeline components are provided in an outdated Docker image, available at https://hub.docker.com/r/broadinstitute/gtex_eqtl/
 
-To download the image, run:
+To use an updated version, do either of these:
+* rebuild docker from scratch locally and enjoy
+* update the existing docker with aptainer:
+
 ```bash
-docker pull broadinstitute/gtex_eqtl:V8
+apptainer build -f --sandbox gtex_eqtl_aptainer_sandbox docker://broadinstitute/gtex_eqtl:V8
+apptainer shell -f --writable  gtex_eqtl_aptainer_sandbox/
+pip install cmapPy
+exit
 ```
+
+To run the apptainer:
+```bash
+apptainer shell --bind /net:/net gtex_eqtl_aptainer_sandbox/
+```
+
 
 #### Image contents and pipeline components
 The following tools are included in the Docker image:
@@ -22,14 +34,15 @@ The following tools are included in the Docker image:
 The following input files are needed:
 
 * VCF file with genotype information. Must be bgzip compressed and indexed with tabix.
-* Expression tables in GCT format. Two tables are needed: read counts and normalized (FPKM or TPM).
-* Gene annotation in GTF format.
+* Expression tables in GCT format. Two tables are needed: read counts and normalized (TPM).
+* Gene annotation in GTF format. Must be correctly sorted.
 
 
 ## Running the pipeline
 Additional [documentation](http://gtexportal.org/home/documentationPage#staticTextAnalysisMethods) and details about parameter choices are provided on the [GTEx Portal](gtexportal.org).
 
 This pipeline requires gene-level expression data. A collapsed reference GTF can be generated for this purpose using the [`collapse_annotation.py`](https://github.com/broadinstitute/gtex-pipeline/blob/master/gene_model/collapse_annotation.py) script available in the [gene model](https://github.com/broadinstitute/gtex-pipeline/tree/master/gene_model) directory. In the code below, it is assumed that `${annotation_gtf}` was generated using this script.
+For .gtf-files, where features in the last columns are separated with ';' and values are linked to keys with '=' use  [`collapse_annotation_altius.py`] for the preprocessing step instead.
 
 #### 1) Generate normalized expression in BED format
 The expression data are normalized as follows: 
@@ -39,8 +52,9 @@ The expression data are normalized as follows:
    - ≥6 reads (unnormalized) in ≥20% samples
 3. Each gene is inverse normal transformed across samples.
 ```bash
-eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
-    ${sample_participant_lookup} ${vcf_chr_list} ${prefix} \
+src/eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
+    ${sample_participant_lookup} ${prefix} \
+    --chr ${vcf_chr_list} \
     --tpm_threshold 0.1 \
     --count_threshold 6 \
     --sample_frac_threshold 0.2 \
@@ -60,7 +74,7 @@ ${prefix}.expression.bed.gz.tbi
 
 #### 2) Calculate PEER factors
 ```bash
-Rscript run_PEER.R ${prefix}.expression.bed.gz ${prefix} ${num_peer}
+Rscript src/run_PEER.R ${prefix}.expression.bed.gz ${prefix} ${num_peer}
 ```
 The number of PEER factors was selected as function of sample size (N):
 - 15 factors for N < 150
