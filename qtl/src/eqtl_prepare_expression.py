@@ -10,6 +10,7 @@ import argparse
 import os
 import qtl.io
 import qtl.norm
+from cmapPy.pandasGEXpress.parse import parse
 
 
 def prepare_bed(df, bed_template_df, chr_subset=None):
@@ -80,16 +81,16 @@ if __name__ == '__main__':
             sample_ids = f.read().strip().split('\n')
             print(f'  * Loading {len(sample_ids)} samples', flush=True)
 
-    counts_df = qtl.io.read_gct(args.counts_gct, sample_ids=sample_ids, load_description=False)
-    tpm_df = qtl.io.read_gct(args.tpm_gct, sample_ids=sample_ids, load_description=False)
+    counts_df = parse(args.counts_gct).data_df
+    tpm_df = parse(args.tpm_gct).data_df
 
-    sample_to_participant_s = pd.read_csv(args.sample_to_participant, sep='\t', index_col=0,
-                                          header=None, dtype=str).squeeze('columns')
+    sample_to_participant_s = pd.read_csv(args.sample_to_participant, sep='\t', names=['gct','vcf'],
+                                          header=None, dtype=str)
 
     # check inputs
     if not counts_df.columns.equals(tpm_df.columns):
         raise ValueError('Sample IDs in the TPM and read counts files must match.')
-    missing_ids = ~counts_df.columns.isin(sample_to_participant_s.index)
+    missing_ids = ~counts_df.columns.isin(sample_to_participant_s['gct'])
     if missing_ids.any():
         raise ValueError(f"Sample IDs in expression files and participant lookup table must match ({missing_ids.sum()} sample IDs missing from {os.path.basename(args.sample_to_participant)}).")
 
@@ -107,7 +108,8 @@ if __name__ == '__main__':
     print(f'  * {norm_df.shape[0]} genes remain after thresholding.', flush=True)
 
     # change sample IDs to participant IDs
-    norm_df.rename(columns=sample_to_participant_s, inplace=True)
+    ## !! revrite normal renaming independent of sample order
+    norm_df.columns=sample_to_participant_s['vcf']
 
     bed_template_df = qtl.io.gtf_to_tss_bed(args.annotation_gtf, feature='transcript')
 
