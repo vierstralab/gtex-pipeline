@@ -8,11 +8,11 @@ The GTEx eQTL pipeline components are provided in an outdated Docker image, avai
 
 To use an updated version, do either of these:
 * rebuild docker from scratch locally and enjoy
-* update the existing docker with aptainer:
+* update the existing docker with apptainer:
 
 ```bash
-apptainer build -f --sandbox gtex_eqtl_aptainer_sandbox docker://broadinstitute/gtex_eqtl:V8
-apptainer shell -f --writable  gtex_eqtl_aptainer_sandbox/
+apptainer build -f --sandbox gtex_eqtl_apptainer_sandbox docker://broadinstitute/gtex_eqtl:V8
+apptainer shell -f --writable  gtex_eqtl_apptainer_sandbox/
 pip install cmapPy
 exit
 ```
