@@ -21,7 +21,7 @@ The following tools are included in the Docker image:
 The following input files are needed:
 
 * VCF file with genotype information. Must be bgzip compressed and indexed with tabix.
-* Expression tables in GCT format. Two tables are needed: read counts and normalized (TPM).
+* Expression tables in GCT format. Two tables are needed: read counts and normalized (TPM). Row metadata should contain gene names (same as in GFT file!!) in a column named 'Geneid'.
 * Gene annotation in GTF format. Must be correctly sorted.
 
 
