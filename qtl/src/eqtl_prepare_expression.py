@@ -81,7 +81,8 @@ if __name__ == '__main__':
             sample_ids = f.read().strip().split('\n')
             print(f'  * Loading {len(sample_ids)} samples', flush=True)
 
-    counts_df = parse(args.counts_gct).data_df
+    counts_gct = parse(args.counts_gct)
+    counts_df = counts_gct.data_df
     tpm_df = parse(args.tpm_gct).data_df
 
     sample_to_participant_s = pd.read_csv(args.sample_to_participant, sep='\t', names=['gct','vcf'],
@@ -109,7 +110,8 @@ if __name__ == '__main__':
 
     # change sample IDs to participant IDs
     ## !! revrite normal renaming independent of sample order
-    norm_df.columns=sample_to_participant_s['vcf']
+    norm_df.columns = sample_to_participant_s['vcf']
+    norm_df = pd.merge(norm_df, counts_gct.row_metadata_df['Geneid'], right_index=True, left_index=True).set_index('Geneid')
 
     bed_template_df = qtl.io.gtf_to_tss_bed(args.annotation_gtf, feature='transcript')
 
