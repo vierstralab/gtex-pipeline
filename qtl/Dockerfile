@@ -1,5 +1,5 @@
 # Dockerfile for GTEx QTL pipeline
-FROM ubuntu:18.04
+FROM python:3
 MAINTAINER Francois Aguet
 ENV DEBIAN_FRONTEND noninteractive
 

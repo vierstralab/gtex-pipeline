@@ -3,24 +3,11 @@
 
 This repository contains all components of the eQTL discovery pipeline used by the GTEx Consortium, including data normalization, QTL mapping, and annotation steps. This document describes the pipeline used for the V7 and V8 data releases; for settings specific to the V6p analyses presented in [[GTEx Consortium, 2017](https://www.nature.com/articles/nature24277)], please see the last section.
 
-## Docker image
-The GTEx eQTL pipeline components are provided in an outdated Docker image, available at https://hub.docker.com/r/broadinstitute/gtex_eqtl/
+## Docker/Apptainer images
+* docker build -t gtex .
+* apptainer build gtex.sif Apptainer
 
-To use an updated version, do either of these:
-* rebuild docker from scratch locally and enjoy
-* update the existing docker with apptainer:
-
-```bash
-apptainer build -f --sandbox gtex_eqtl_apptainer_sandbox docker://broadinstitute/gtex_eqtl:V8
-apptainer shell -f --writable  gtex_eqtl_apptainer_sandbox/
-pip install cmapPy
-exit
-```
-
-To run the apptainer:
-```bash
-apptainer shell --bind /net:/net gtex_eqtl_aptainer_sandbox/
-```
+!! Do not use docker image broadinstitute/gtex_eqtl:V8. There's python 3.5 inside and it is incomptible with most gtex qtl scripts.
 
 
 #### Image contents and pipeline components
