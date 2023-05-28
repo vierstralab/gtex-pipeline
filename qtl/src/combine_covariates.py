@@ -34,5 +34,7 @@ if np.any(colinear_ix):
         print("  * dropped '{}'".format(i))
     combined_df = combined_df.loc[~colinear_ix]
 
+combined_df.index.name = 'id'
+
 combined_df.to_csv(os.path.join(args.output_dir, args.prefix+'.combined_covariates.txt'), sep='\t')#, float_format='%.6g')
 print('done.')
